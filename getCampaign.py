@@ -20,7 +20,7 @@ def singleCampaign(url):
     keys=['id', 'name', 'custom_id', 'status', 'start_date', 'end_date']
     for k in keys:
         print("{:<20}{}".format(k, payload[k]))
-    return payload
+    return resp
 
 def allCampaigns(url):
     resp = getRequest(url)

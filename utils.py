@@ -13,9 +13,9 @@ def putRequest(url, data):
     resp = requests.put(url, data=data, headers=hdr)
     if resp.status_code == 200:
         print("success")
-        return resp.json()
     else:
-        return resp.json()
+        print(resp.status_code)
+    return resp
 
 def postRequest(url, data, files=None):
     hdr = getHeader()

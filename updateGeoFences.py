@@ -1,6 +1,5 @@
 from utils import postRequest
 from config import getBaseURL
-from getOrganization import getOrg
 
 def updateGeoFences(orgID, campaignID, payload):
     base = getBaseURL()

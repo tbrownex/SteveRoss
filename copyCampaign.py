@@ -1,22 +1,38 @@
 import json
+import os
 
 from config import getBaseURL
 from getCampaign import getCampaign
 from createCampaign import createCampaign
-from updateCampaign import update
+from updateCampaign import updateCampaign
 from getGeoFences import getGeoFences
 from utils import postRequest
+from postAd import postAd
+from createAddressableTargets import createAddressableTargets
+from getDeviceTypes import getDeviceTypes
+from updateDeviceTypes import updateDeviceTypes
 
-def copyCampaign(orgID, campaignID, numCopies):
+def copyCampaign(orgID, campaignID, orgName, numCopies):
     # Get a campaign to copy, then create a campaign, then update it with values from the copied
     # First get the campaign to copy
     master = getCampaign(orgID, campaignID)
+    master = master['campaigns'][0]
     name = master['name']
     payload = formatPayload(master)
     # Now create new campaigns
     newIDs = createCampaigns(orgID, payload, numCopies, name)
+    # Update the Device Types
+    addDeviceTypes(campaignID, newIDs)
     # Update the GeoFences
     addGeoFences(orgID, campaignID, newIDs)
+    # Add the Ads (JPEG or PNGs)
+    processAds(orgID, newIDs, orgName)
+    # Add the addressable targets
+    path = '/home/tbrownex/repos/SteveRoss/'+orgName+'/addresses'
+    addressIDs = createAddressableTargets(orgID, path)
+    for idx, newID in enumerate(newIDs):
+        addressID = addressIDs[idx]
+        addAddressableTargetToCampaign(orgID, newID, addressID)
     
 def formatPayload(campaign):
     # These attributes have different names when updating than when "getting"
@@ -34,15 +50,22 @@ def formatPayload(campaign):
 
 def createCampaigns(orgID, payload, numCopies, name):
     # Each campaign created is just a stub
+    characters = 2 if numCopies < 100 else 3
     newIDs = []
-    for n in range(1, numCopies+1):
-        payload['campaign']['name'] = name+' - copy '+str(n)
+    for n in range(2, numCopies+2):
+        payload['campaign']['name'] = name + ' ' + str(n).zfill(characters)
         newID = createCampaign(orgID)
         payloadString = json.dumps(payload)
-        resp = update(orgID, newID, payloadString)
+        resp = updateCampaign(orgID, newID, payloadString)
         newIDs.append(newID)
     return newIDs
-    
+
+def addDeviceTypes(campaignID, newIDs):
+    # Get the Device Types from the master campaign
+    deviceTypes = getDeviceTypes(campaignID)
+    for newID in newIDs:
+        resp = updateDeviceTypes(newID, deviceTypes)
+
 def addGeoFences(orgID, campaignID, newIDs):
     # Get the GeoFence data from the master campaign
     payload = formatGeoPayload(orgID, campaignID)
@@ -63,3 +86,15 @@ def formatGeoPayload(orgID, campaignID):
     payload = {}
     payload['geo_fences'] = l
     return json.dumps(payload)
+
+def processAds(orgID, newIDs, orgName):
+    path = '/home/tbrownex/repos/SteveRoss/'+orgName+'/images'
+    files = os.listdir(path)
+    for key in newIDs:
+        for file in files:
+            adDetails = {
+                'name': file.split('.')[0],
+                'path': path,
+                'fileName': file
+            }
+            resp = postAd(orgID, key, adDetails)
