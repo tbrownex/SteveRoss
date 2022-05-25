@@ -13,7 +13,10 @@ from getDeviceTypes import getDeviceTypes
 from updateDeviceTypes import updateDeviceTypes
 from addAddressableTargetToCampaign import addAddressableTargetToCampaign
 
+ADDRESSIDS = [678604, 678605, 678606, 678607, 678608, 678609, 678610, 678611, 678612]
+
 def copyCampaign(orgID, campaignID, orgName, numCopies):
+    assert numCopies == len(ADDRESSIDS), "number of copies does not match number of Address IDs"
     # Get a campaign to copy, then create a campaign, then update it with values from the copied
     # First get the campaign to copy
     master = getCampaign(orgID, campaignID)
@@ -28,13 +31,9 @@ def copyCampaign(orgID, campaignID, orgName, numCopies):
     addGeoFences(orgID, campaignID, newIDs)
     # Add the Ads (JPEG or PNGs)
     processAds(orgID, newIDs, orgName)
-    # Add the addressable targets
-    path = '/home/tbrownex/repos/SteveRoss/'+orgName+'/addresses'
-    print("Creating Addressable Targets")
-    #addressIDs = createAddressableTargets(orgID, path)
-    addressIDs = [x for x in range(678604, 678613)]
-    for x,campaignID in enumerate(newIDs):
-        addressID = addressIDs[x]
+    print("Associating Addressable Targets")
+    for x, campaignID in enumerate(newIDs):
+        addressID = ADDRESSIDS[x]
         addAddressableTargetToCampaign(orgID, campaignID, addressID)
     return
     

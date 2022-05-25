@@ -12,7 +12,8 @@ def postAd(orgID, campaignID, adDetails):
     url = base+"organizations/"+str(orgID)+"/campaigns/"+str(campaignID)+'/ads'
     payload = {
         'ad[name]': adDetails['name'],
-        'ad[target_url]': 'http://simpli.fi'
+        'ad[target_url]': adDetails['targetURL'],
+        'ad[extra_html]': adDetails['extraHTML']
     }
     imagePath = adDetails['path']
     imageName = adDetails['fileName']
