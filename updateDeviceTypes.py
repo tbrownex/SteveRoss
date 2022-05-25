@@ -8,4 +8,5 @@ def updateDeviceTypes(campaignID, deviceTypes):
     url = base +"/campaigns/"+str(campaignID)+"/device_types"
     payload = {"device_type_ids": deviceTypes}
     payload=json.dumps(payload)
-    return putRequest(url, payload)
+    resp = putRequest(url, payload)
+    return resp

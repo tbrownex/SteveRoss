@@ -9,7 +9,7 @@ def addAddressableTargetToCampaign(orgID, campaignID, addressID):
     This will assign one of them to a Campaign
     '''
     base = getBaseURL()
-    url = base + "/campaigns/"+str(campaignID)+'/campaign_addresses/change'
+    url = base + "campaigns/"+str(campaignID)+'/campaign_addresses/change'
     d = {'add': [
         {"address_id": addressID,
          "segment_target_type_id": 2

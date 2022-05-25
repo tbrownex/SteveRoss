@@ -31,12 +31,12 @@ def copyCampaign(orgID, campaignID, orgName, numCopies):
     # Add the addressable targets
     path = '/home/tbrownex/repos/SteveRoss/'+orgName+'/addresses'
     print("Creating Addressable Targets")
-    #addressIDs = createAddressableTargets(orgID, path)
-    addressIDs = [x for x in range(678604, 678613)]
-    for x,campaignID in enumerate(newIDs):
-        addressID = addressIDs[x]
-        addAddressableTargetToCampaign(orgID, campaignID, addressID)
-    return
+    addressIDs = createAddressableTargets(orgID, path)
+    '''for idx, newID in enumerate(newIDs):
+        addressID = addressIDs[idx]
+        print(addressID, newID)
+        resp = addAddressableTargetToCampaign(orgID, newID, addressID)'''
+    return addressIDs
     
 def formatPayload(campaign):
     # These attributes have different names when updating than when "getting"

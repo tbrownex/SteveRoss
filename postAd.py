@@ -1,6 +1,5 @@
 from utils import postRequest
 from config import getBaseURL
-from getCampaign import getCampaign
 
 import requests
 
@@ -9,8 +8,6 @@ def postAd(orgID, campaignID, adDetails):
     Associates an image to a campaign
     "adDetails" is a dictionary for naming the Ad and the location of the image
     '''
-    campaign = getCampaign(orgID, campaignID)
-    print("\n")
     base = getBaseURL()
     url = base+"organizations/"+str(orgID)+"/campaigns/"+str(campaignID)+'/ads'
     payload = {

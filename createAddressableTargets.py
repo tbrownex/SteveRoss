@@ -9,11 +9,10 @@ def createAddressableTargets(orgID, path):
     For each CSV in "path", create an Addressable Target at the Org level
     Each Addressable Target has a unique ID which needs to be saved and returned
     '''
-    print("Creating Addressable Targets")
     csvList = getFiles(path)
     addressIDs = []
     for csv in csvList:
-        print('processing: ', csv)
+        print('--  ', csv)
         addressID = processAddressList(orgID, path, csv)
         addressIDs.append(addressID)
     return addressIDs
@@ -28,10 +27,11 @@ def processAddressList(orgID, path, csv):
     return addressID
     
 def createTarget(orgID, csv):
+    # segment_score of "2" means "Frequent"
     base = config.getBaseURL()
     url = base + "organizations/"+str(orgID)+"/addresses"
     d = {'name': csv.split('.')[0],
-         "first_party_segment_score_filter_attributes": {"segment_score_filter_id": 1}
+         "first_party_segment_score_filter_attributes": {"segment_score_filter_id": 2}
         }
     payload = {"address": d}
     payload = json.dumps(payload)
