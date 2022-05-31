@@ -17,10 +17,11 @@ def getCampaign(orgID, campaignID=None):
 def singleCampaign(url):
     resp = getRequest(url)
     payload = resp['campaigns'][0]
-    keys=['id', 'name', 'custom_id', 'status', 'start_date', 'end_date']
+    return payload
+    '''keys=['id', 'name', 'custom_id', 'status', 'start_date', 'end_date']
     for k in keys:
         print("{:<20}{}".format(k, payload[k]))
-    return resp
+    return resp'''
 
 def allCampaigns(url):
     resp = getRequest(url)

@@ -12,10 +12,12 @@ from createAddressableTargets import createAddressableTargets
 from getDeviceTypes import getDeviceTypes
 from updateDeviceTypes import updateDeviceTypes
 from addAddressableTargetToCampaign import addAddressableTargetToCampaign
+from activateCampaign import activateCampaign
 
 ADDRESSIDS = [678604, 678605, 678606, 678607, 678608, 678609, 678610, 678611, 678612]
 
 def copyCampaign(orgID, campaignID, orgName, numCopies):
+    d = {}     # This is for tracking purposes in case of error
     assert numCopies == len(ADDRESSIDS), "number of copies does not match number of Address IDs"
     # Get a campaign to copy, then create a campaign, then update it with values from the copied
     # First get the campaign to copy
@@ -31,11 +33,16 @@ def copyCampaign(orgID, campaignID, orgName, numCopies):
     addGeoFences(orgID, campaignID, newIDs)
     # Add the Ads (JPEG or PNGs)
     processAds(orgID, newIDs, orgName)
+    # Set day-parting
+    processDayParting(orgID, newIDs)
     print("Associating Addressable Targets")
     for x, campaignID in enumerate(newIDs):
         addressID = ADDRESSIDS[x]
         addAddressableTargetToCampaign(orgID, campaignID, addressID)
-    return
+    # Activate
+    activate(orgID, newIDs)
+    d[campaignID] = newIDs
+    return d
     
 def formatPayload(campaign):
     # These attributes have different names when updating than when "getting"
@@ -96,6 +103,24 @@ def formatGeoPayload(orgID, campaignID):
     payload['geo_fences'] = l
     return json.dumps(payload)
 
+def processDayParting(orgID, newIDs):
+    print("Day-parting")
+    payload = {
+      'campaign': {"week_dayparting": [
+        [7,8,9,10,11,12,13,14,15,16,17,18,19,20],
+        [7,8,9,10,11,12,13,14,15,16,17,18,19,20],
+        [7,8,9,10,11,12,13,14,15,16,17,18,19,20],
+        [7,8,9,10,11,12,13,14,15,16,17,18,19,20],
+        [7,8,9,10,11,12,13,14,15,16,17,18,19,20],
+        [7,8,9,10,11,12,13,14,15,16,17,18,19,20],
+        [7,8,9,10,11,12,13,14,15,16,17,18,19,20]
+      ]}
+    }
+    payload = json.dumps(payload)
+    for key in newIDs:
+        print("-- {}".format(newID))
+        updateCampaign(orgID, key, payload)
+
 def processAds(orgID, newIDs, orgName):
     path = '/home/tbrownex/repos/SteveRoss/'+orgName+'/images'
     files = os.listdir(path)
@@ -104,6 +129,13 @@ def processAds(orgID, newIDs, orgName):
             adDetails = {
                 'name': file.split('.')[0],
                 'path': path,
-                'fileName': file
+                'fileName': file,
+                'targetURL': 'https://Subway.com'
             }
             resp = postAd(orgID, key, adDetails)
+
+def activate(orgID, newIDs):
+    print("Activating")
+    for key in newIDs:
+        print("-- {}".format(newID))
+        activateCampaign(orgID, key)
