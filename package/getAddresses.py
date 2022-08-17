@@ -1,18 +1,14 @@
+import getArgs
 from utils import getRequest
 from config import getBaseURL
 
-def getAddresses(campaignID, orgID=None):
-    # If orgID passed, get the addresses for an Organization otherwise it's addresses for a Campaign
+def main(orgID):
+    # Show all the addresses for an Organization
+    assert orgID is not None, "Need an Organization ID"
     base = getBaseURL()
-    if orgID is not None:
-        url = base+"organizations/"+str(orgID)+"/addresses"
-        IDs, names = getAll(url)
-        return zip(IDs, names)
-    else:
-        url = base+"campaigns/"+str(campaignID)+'/campaign_addresses'
-        resp = getRequest(url)
-        printAddress(resp)
-        return resp
+    url = base+"organizations/"+str(orgID)+"/addresses"
+    IDs, names = getAll(url)
+    return zip(IDs, names)
 
 def getAll(url):
     # No printing, just get the ID and Name of all Addresses
@@ -31,3 +27,8 @@ def printAddress(resp):
     print("{:<15}{:<40}".format("Campaign ID", "Address ID"))
     for address in resp['campaign_addresses']:
         print("{:<15}{}".format(address['campaign_id'], address['address_id']))
+
+if __name__ == "__main__":
+    args = getArgs.main()
+    print(args)
+    main(args)

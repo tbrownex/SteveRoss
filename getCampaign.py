@@ -1,8 +1,13 @@
+import math
+
 from utils import getRequest
 from config import getBaseURL
 from getOrganization import getOrg
 
 def getCampaign(orgID, campaignID=None):
+    '''
+    Either show the details of a singe campaign or get all the campaigns for an Organization
+    '''
     getOrg(orgID)
     print("\n")    
     base = getBaseURL()
@@ -17,15 +22,20 @@ def getCampaign(orgID, campaignID=None):
 def singleCampaign(url):
     resp = getRequest(url)
     payload = resp['campaigns'][0]
-    return payload
-    '''keys=['id', 'name', 'custom_id', 'status', 'start_date', 'end_date']
+    keys=['id', 'name', 'custom_id', 'status', 'start_date', 'end_date']
     for k in keys:
         print("{:<20}{}".format(k, payload[k]))
-    return resp'''
+    return resp
 
 def allCampaigns(url):
+    # Get the ID and Name of all campaigns
+    IDs = []
+    names = []
     resp = getRequest(url)
-    print("{:<10}{}".format("ID", "Name"))
-    for c in resp['campaigns']:
-        print("{:<10}{}".format(c['id'], c['name']))
-    return resp
+    numPages = math.ceil(resp['paging']['total'] / resp['paging']['size'])
+    for page in range(2, numPages+2):
+        for c in resp['campaigns']:
+            IDs.append(c['id'])
+            names.append(c['name'])
+        resp = getRequest(url+"?page="+str(page))
+    return IDs, names

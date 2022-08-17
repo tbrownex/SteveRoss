@@ -3,6 +3,9 @@ from config import getBaseURL
 from getCampaign import getCampaign
 
 def getAds(orgID, campaignID):
+    '''
+    Ads are always associated with a Campaign
+    '''
     campaign = getCampaign(orgID, campaignID)
     print("\n")    
     base = getBaseURL()

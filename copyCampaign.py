@@ -14,7 +14,7 @@ from updateDeviceTypes import updateDeviceTypes
 from addAddressableTargetToCampaign import addAddressableTargetToCampaign
 from activateCampaign import activateCampaign
 
-ADDRESSIDS = [678604, 678605, 678606, 678607, 678608, 678609, 678610, 678611, 678612]
+ADDRESSIDS = [686360, 686361, 686363, 686364, 686365]
 
 def copyCampaign(orgID, campaignID, orgName, numCopies):
     d = {}     # This is for tracking purposes in case of error
@@ -36,9 +36,9 @@ def copyCampaign(orgID, campaignID, orgName, numCopies):
     # Set day-parting
     processDayParting(orgID, newIDs)
     print("Associating Addressable Targets")
-    for x, campaignID in enumerate(newIDs):
+    for x, campaign in enumerate(newIDs):
         addressID = ADDRESSIDS[x]
-        addAddressableTargetToCampaign(orgID, campaignID, addressID)
+        addAddressableTargetToCampaign(orgID, campaign, addressID)
     # Activate
     activate(orgID, newIDs)
     d[campaignID] = newIDs
@@ -63,7 +63,7 @@ def createCampaigns(orgID, payload, numCopies, name):
     print("Creating Campaigns")
     characters = 2 if numCopies < 100 else 3
     newIDs = []
-    for n in range(2, numCopies+2):
+    for n in range(201, 200+numCopies+1):
         payload['campaign']['name'] = name + ' ' + str(n).zfill(characters)
         newID = createCampaign(orgID)
         payloadString = json.dumps(payload)
@@ -118,8 +118,8 @@ def processDayParting(orgID, newIDs):
     }
     payload = json.dumps(payload)
     for key in newIDs:
-        print("-- {}".format(newID))
-        updateCampaign(orgID, key, payload)
+        print("-- {}".format(key))
+        resp = updateCampaign(orgID, key, payload)
 
 def processAds(orgID, newIDs, orgName):
     path = '/home/tbrownex/repos/SteveRoss/'+orgName+'/images'
@@ -137,5 +137,5 @@ def processAds(orgID, newIDs, orgName):
 def activate(orgID, newIDs):
     print("Activating")
     for key in newIDs:
-        print("-- {}".format(newID))
+        print("-- {}".format(key))
         activateCampaign(orgID, key)
