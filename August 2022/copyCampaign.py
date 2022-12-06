@@ -1,6 +1,8 @@
 import json
 import os
 import random
+import datetime
+import logging
 
 from getCampaign import getCampaign
 from createCampaign import createCampaign
@@ -16,7 +18,17 @@ from addAddressableTargetToCampaign import addAddressableTargetToCampaign
 
 ADDRESSIDS = [727840, 727841, 727842, 728054, 728055, 728056, 728057, 728058, 728059]
 
-def copyCampaign(orgID, campaignID, numCopies):
+logLoc = "/home/tbrownex/"
+logFile = "LoadTest.log"
+logDefault = "info"
+logLevel = getattr(logging, logDefault.upper(), None)
+logging.basicConfig(filename=logLoc+logFile,\
+                        level=logLevel,\
+                        format='%(levelname)s:%(message)s')
+    
+logger = logging.getLogger('tcpserver')
+
+def copyCampaign(orgID, masterIDs, numCopies):
     d = {}     # This is for tracking purposes in case of error
     #assert numCopies == len(ADDRESSIDS), "number of copies does not match number of Address IDs"
     # Get a campaign to copy, then create a campaign, then update it with values from the copied
@@ -27,13 +39,18 @@ def copyCampaign(orgID, campaignID, numCopies):
     payload = formatPayload(master)
     # Now create new campaigns for new Org (LoadTest)
     orgID = 386279
-    newIDs = createCampaigns(orgID, payload, numCopies, name)
-    addDeviceTypes(campaignID, newIDs)
-    addGeoFences(orgID, campaignID, newIDs)
-    processAds(orgID, newIDs)
-    processDayParting(orgID, newIDs)
-    processAddresses(orgID, newIDs)
+    #newIDs = createCampaigns(orgID, payload, numCopies, name)
+    #addDeviceTypes(campaignID, newIDs)
+    #addGeoFences(orgID, campaignID, newIDs)
+    #logger.warning('Posting Ads starting: '+ str(datetime.datetime.now()))
+    #processAds(orgID, newIDs)
+    #logger.warning('Dayparting starting: '+ str(datetime.datetime.now()))
+    #processDayParting(orgID, newIDs)
+    #logger.warning('Addresses starting: '+ str(datetime.datetime.now()))
+    #processAddresses(orgID, newIDs)
+    logger.warning('Activation starting: '+ str(datetime.datetime.now()))
     activate(orgID, newIDs)
+    logger.warning('Activation ended: '+ str(datetime.datetime.now()))
     return newIDs
     
 def formatPayload(campaign):
@@ -107,8 +124,12 @@ def processDayParting(orgID, newIDs):
       ]}
     }
     payload = json.dumps(payload)
+    count=0
     for key in newIDs:
         resp = updateCampaign(orgID, key, payload)
+        count +=1
+        if count % 500 == 0:
+            logger.warning(str(key) + ' -- ' + str(datetime.datetime.now()))
 
 def processAds(orgID, newIDs):
     path = '/home/tbrownex/repos/SteveRoss/August 2022/images'
@@ -125,11 +146,30 @@ def processAds(orgID, newIDs):
 
 def processAddresses(orgID, newIDs):
     print("Associating Addressable Targets")
+    count=0
     for campaign in newIDs:
         addressID = random.choice(ADDRESSIDS)
         addAddressableTargetToCampaign(orgID, campaign, addressID)
+        count +=1
+        if count % 500 == 0:
+            logger.warning(str(campaign) + ' -- ' + str(datetime.datetime.now()))
 
 def activate(orgID, newIDs):
     print("Activating")
+    count=0
     for key in newIDs:
         activateCampaign(orgID, key)
+        count +=1
+        if count % 500 == 0:
+            logger.warning(str(key) + ' -- ' + str(datetime.datetime.now()))
+
+def setLogging():
+    logLoc = "/home/tbrownex/"
+    logFile = "LoadTest.log"
+    logDefault = "info"
+    logLevel = getattr(logging, logDefault.upper(), None)
+
+    logging.basicConfig(filename=logLoc+logFile,\
+                        level=logLevel,\
+                        format='%(levelname)s:%(message)s')
+    
